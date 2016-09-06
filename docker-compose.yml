@@ -1,0 +1,47 @@
+www-data:
+    image: busybox
+    volumes:
+        - .:/www-data
+
+nginx:
+    image: nginx:1.7
+    volumes_from:
+        - www-data
+    volumes:
+        - ./docker/nginx/shared/sites-enabled:/etc/nginx/conf.d:ro
+    ports:
+        - 8088:80
+    links:
+        - phpfpm
+
+mysql:
+    image: mysql:5.7
+    environment:
+        MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+phpfpm:
+    build: ./docker/phpfpm
+    volumes_from:
+        - www-data
+    working_dir: /www-data
+    links:
+        - mysql
+
+phpcli: &phpcli
+    build: ./docker/phpcli
+    volumes_from:
+        - www-data
+    working_dir: /www-data
+    entrypoint: php
+    links:
+        - mysql
+
+composer:
+    <<: *phpcli
+    entrypoint: composer
+
+phpcs:
+    <<: *phpcli
+    entrypoint: php-cs-fixer
+
+
