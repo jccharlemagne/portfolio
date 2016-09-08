@@ -1,4 +1,4 @@
-www-data:
+wwwdata:
     image: busybox
     volumes:
         - .:/www-data
@@ -6,7 +6,7 @@ www-data:
 nginx:
     image: nginx:1.7
     volumes_from:
-        - www-data
+        - wwwdata
     volumes:
         - ./docker/nginx/shared/sites-enabled:/etc/nginx/conf.d:ro
     ports:
@@ -22,7 +22,7 @@ mysql:
 phpfpm:
     build: ./docker/phpfpm
     volumes_from:
-        - www-data
+        - wwwdata
     working_dir: /www-data
     links:
         - mysql
@@ -30,7 +30,7 @@ phpfpm:
 phpcli: &phpcli
     build: ./docker/phpcli
     volumes_from:
-        - www-data
+        - wwwdata
     working_dir: /www-data
     entrypoint: php
     links:
